@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}Transkription{% endblock %}
+
+{% block content %}
+<h2>Audio-Transkription</h2>
+
+<!-- Audio-Upload -->
+<form method="POST" enctype="multipart/form-data">
+    <label for="audiofile">Audio hochladen (mp3 oder wav):</label>
+    <input type="file" name="audiofile" accept=".mp3,.wav" required>
+    <button type="submit">Transkribieren</button>
+</form>
+
+<hr>
+
+<!-- Browser-Aufnahme -->
+<h3>Audio direkt im Browser aufnehmen</h3>
+<div id="recordingStatus" style="display:none; color: red; font-weight: bold;">
+    Aufnahme läuft ...
+</div>
+
+<div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+    <button id="record">Start</button>
+    <button id="pause" disabled>Pause</button>
+    <button id="stop" disabled>Stop</button>
+</div>
+
+<audio id="player" controls style="display:none; margin-top: 1rem;"></audio>
+
+<form id="uploadForm" method="POST" enctype="multipart/form-data" style="display:none; margin-top: 1rem;">
+    <input type="file" name="audiofile" id="uploadInput">
+    <button type="submit">Transkribieren</button>
+</form>
+
+{% if transcript %}
+<hr>
+<h3>Transkribierter Text</h3>
+<textarea id="transcript" rows="10" style="width: 100%;">{{ transcript }}</textarea>
+<button onclick="copyToClipboard('transcript')">Text kopieren</button>
+
+<p><strong>Geschätzte Kosten:</strong> {{ estimated_cost }} USD</p>
+
+<label for="mode">Stil wählen:</label>
+<select id="mode">
+    <option value="korrektur">Rechtschreibung & Ausdruck</option>
+    <option value="hoeflich">Höflich (für E-Mail)</option>
+    <option value="freundlich">Freundlich (an Freund:in)</option>
+    <option value="humorvoll">Humorvoll (für Blog)</option>
+</select>
+<button type="button" onclick="improveText()">Text verbessern</button>
+
+<h4>Bearbeiteter Text</h4>
+<textarea id="improved" rows="10" style="width: 100%;"></textarea>
+<button onclick="copyToClipboard('improved')">Text kopieren</button>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+let mediaRecorder;
+let audioChunks = [];
+
+const recordBtn = document.getElementById("record");
+const pauseBtn = document.getElementById("pause");
+const stopBtn = document.getElementById("stop");
+const player = document.getElementById("player");
+const uploadForm = document.getElementById("uploadForm");
+const uploadInput = document.getElementById("uploadInput");
+const recordingStatus = document.getElementById("recordingStatus");
+
+// Aufnahme starten
+recordBtn.onclick = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream);
+    audioChunks = [];
+
+    mediaRecorder.ondataavailable = event => {
+        if (event.data.size > 0) audioChunks.push(event.data);
+    };
+
+    mediaRecorder.onstop = () => {
+        stream.getTracks().forEach(track => track.stop());
+        document.dispatchEvent(new Event("stop-recording"));
+        recordingStatus.style.display = "none";
+
+        const blob = new Blob(audioChunks, { type: "audio/wav" });
+        const file = new File([blob], "aufnahme.wav", { type: "audio/wav" });
+
+        const url = URL.createObjectURL(blob);
+        player.src = url;
+        player.style.display = "block";
+
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        uploadInput.files = dt.files;
+        uploadForm.style.display = "block";
+    };
+
+    mediaRecorder.start();
+    document.dispatchEvent(new Event("start-recording"));
+    recordingStatus.style.display = "block";
+
+    recordBtn.disabled = true;
+    pauseBtn.disabled = false;
+    stopBtn.disabled = false;
+};
+
+// Pause & Fortsetzen
+pauseBtn.onclick = () => {
+    if (mediaRecorder.state === "recording") {
+        mediaRecorder.pause();
+        pauseBtn.textContent = "Fortsetzen";
+    } else {
+        mediaRecorder.resume();
+        pauseBtn.textContent = "Pause";
+    }
+};
+
+// Stop
+stopBtn.onclick = () => {
+    mediaRecorder.stop();
+    recordBtn.disabled = false;
+    pauseBtn.disabled = true;
+    stopBtn.disabled = true;
+    pauseBtn.textContent = "Pause";
+};
+
+// Stil-Transformation
+function improveText() {
+    const text = document.getElementById("transcript").value;
+    const mode = document.getElementById("mode").value;
+
+    fetch("/improve_text", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, mode })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.improved_text) {
+            document.getElementById("improved").value = data.improved_text;
+        }
+    });
+}
+
+// Copy-Funktion für Textbereiche
+function copyToClipboard(id) {
+    const textElement = document.getElementById(id);
+    navigator.clipboard.writeText(textElement.value).then(() => {
+        alert("Text wurde kopiert.");
+    });
+}
+
+// Datei löschen beim Tab-Verlassen
+window.addEventListener("beforeunload", () => {
+    const audioFile = "{{ audio_file }}";
+    if (audioFile) {
+        navigator.sendBeacon("/delete_audio", JSON.stringify({ filename: audioFile }));
+    }
+});
+</script>
+{% endblock %}

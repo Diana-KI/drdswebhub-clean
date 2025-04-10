@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Reiseerfahrungen{% endblock %}
+
+{% block content %}
+    <section class="blog">
+        <h2>🌍 Reiseblog</h2>
+        
+        
+        {% for post in posts %}
+        {% set post_index = loop.index0 %}
+        <div class="post">
+            <h3>{{ post.title }}</h3>
+    
+            {% if post.image_url %}
+            <img src="{{ post.image_url }}" alt="Reisebild" style="max-width: 400px;">
+            {% endif %}
+    
+            <p>{{ post.content }}</p>
+    
+            <!-- 🔊 Direkt-Vorlesen mit GPT-Voice -->
+            <button onclick="playVoice({{ post_index }}, this)">🎧 Vorlesen</button>
+            <audio id="audio-{{ post_index }}" style="display: none;" controls></audio>
+        </div>
+    {% endfor %}
+    
+    
+
+
+
+
+        {% if session.get('role') == 'writer' %}
+        <div style="text-align: right; margin-top: 2rem;">
+            <a href="/admin" class="create-button">➕ Beitrag erstellen</a>
+            <br><a href="/logout">🔓 Logout</a>
+        </div>
+        {% else %}
+        <div style="text-align: right; margin-top: 2rem;">
+            <a href="/login_writer">🔐 Login als Writer (temporär)</a>
+        </div>
+        {% endif %}
+    </section>
+{% endblock %}
+
+
+
+{% block scripts %}
+<script>
+    function playVoice(postId, button) {
+        const audioElement = document.getElementById(`audio-${postId}`);
+        button.disabled = true;
+        button.textContent = "🎙️ Wird generiert...";
+    
+        fetch(`/generate_audio/${postId}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.audio_url) {
+                    audioElement.src = data.audio_url;
+                    audioElement.style.display = "block";
+                    audioElement.play();
+                    button.textContent = "🔁 Nochmal anhören";
+                    button.disabled = false;
+                } else {
+                    button.textContent = "❌ Fehler";
+                }
+            })
+            .catch(error => {
+                console.error("Fehler beim Vorlesen:", error);
+                button.textContent = "⚠️ Fehler";
+            });
+    }
+</script>
+{% endblock %}
+
+    
+

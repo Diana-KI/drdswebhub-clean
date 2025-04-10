@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: drds-webhub
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "./start.sh"
+    plan: free
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false

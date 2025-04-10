@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Text-to-Speech{% endblock %}
+
+{% block content %}
+<h2>Text-to-Speech</h2>
+
+<!-- Text direkt eingeben -->
+<form method="post" enctype="multipart/form-data">
+    <label for="text">Text eingeben:</label>
+    <textarea name="text" id="text" rows="6" placeholder="Geben Sie hier Ihren Text ein..."></textarea>
+
+    <label for="voice">Stimme wählen:</label>
+    <select name="voice" id="voice">
+        <option value="nova">Nova (Standard)</option>
+        <option value="shimmer">Shimmer</option>
+        <option value="fable">Fable</option>
+        <option value="onyx">Onyx</option>
+        <option value="echo">Echo</option>
+        <option value="alloy">Alloy</option>
+    </select>
+
+    <button type="submit">Vorlesen</button>
+</form>
+
+<hr>
+
+<!-- Datei mit Textinhalt hochladen -->
+<h3>Textdatei hochladen</h3>
+<form method="post" enctype="multipart/form-data">
+    <input type="file" name="textfile" accept=".txt,.doc,.docx,.pdf" required>
+    <button type="submit">Datei umwandeln</button>
+</form>
+
+<!-- Ausgabe nach Verarbeitung -->
+{% if audio_file %}
+    <h3>Audioausgabe</h3>
+    <audio controls>
+        <source src="{{ url_for('static', filename=audio_file) }}" type="audio/mpeg">
+        Ihr Browser unterstützt kein Audio.
+    </audio>
+    <br>
+    <a href="{{ url_for('static', filename=audio_file) }}" download>Audio herunterladen</a>
+    <br><br>
+    <button type="button" onclick="copyText()">Text kopieren</button>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Text aus dem Textfeld kopieren
+function copyText() {
+    const textarea = document.getElementById("text");
+    navigator.clipboard.writeText(textarea.value).then(() => {
+        alert("Text wurde kopiert.");
+    });
+}
+
+// Datei beim Tab-Verlassen automatisch löschen
+window.addEventListener("beforeunload", () => {
+    const audioFile = "{{ audio_file }}";
+    if (audioFile) {
+        navigator.sendBeacon("/delete_audio", JSON.stringify({ filename: audioFile }));
+    }
+});
+</script>
+{% endblock %}

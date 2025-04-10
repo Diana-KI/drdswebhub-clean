@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}DrD's WebHub{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <!-- Header mit Navigation -->
+    <header>
+        <h1>DrD's WebHub</h1>
+        <nav>
+            <a href="/">Home</a>
+            <a href="/tts">Text-to-Speech</a>
+            <a href="/transcription">Transkription</a>
+        </nav>
+    </header>
+
+    <!-- Hauptbereich für Inhalte -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 DrD's WebHub – Alle Rechte vorbehalten</p>
+    </footer>
+
+    <!-- Tab-Title-Aufnahmeindikator (optional) -->
+    <script>
+        const originalTitle = document.title;
+
+        document.addEventListener("start-recording", () => {
+            document.title = "🔴 Aufnahme läuft... | " + originalTitle;
+        });
+
+        document.addEventListener("stop-recording", () => {
+            document.title = originalTitle;
+        });
+    </script>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
+
+

@@ -1,0 +1,136 @@
+/* style.css */
+/* ------------------------------
+   Professionelles Webdesign
+   Farbschema: Pastellblau, Rosa, Grau, Weiß
+   Mobilfreundlich & elegant
+--------------------------------- */
+
+/* --- Grundstruktur --- */
+body {
+    font-family: 'Segoe UI', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
+    color: #333;
+}
+
+/* --- Header & Navigation --- */
+header {
+    background: linear-gradient(to right, #e0f0ff, #ffe0f0);
+    padding: 2rem 1rem;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2rem;
+    color: #222;
+}
+
+nav {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+nav a {
+    color: #444;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+}
+
+nav a:hover {
+    background-color: #dceeff;
+}
+
+/* --- Hauptinhalt --- */
+main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+/* --- Überschriften --- */
+h2, h3, h4 {
+    margin-top: 2rem;
+    color: #222;
+}
+
+/* --- Formulare & Elemente --- */
+form {
+    margin-bottom: 2rem;
+}
+
+input[type="file"],
+textarea,
+select {
+    width: 100%;
+    padding: 0.8rem;
+    font-size: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+    background-color: #fafafa;
+}
+
+/* --- Buttons --- */
+button {
+    background-color: #ccf2ff;
+    color: #222;
+    border: none;
+    padding: 0.7rem 1.4rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+button:hover {
+    background-color: #b8e6f5;
+}
+
+/* --- Audio Player --- */
+audio {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+/* --- Footer --- */
+footer {
+    text-align: center;
+    padding: 2rem 1rem;
+    font-size: 0.9rem;
+    background-color: #f4f4f4;
+    color: #777;
+    margin-top: 3rem;
+}
+
+/* --- Responsive Anpassungen --- */
+@media (max-width: 600px) {
+    header h1 {
+        font-size: 1.5rem;
+    }
+
+    nav {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    button {
+        width: 100%;
+    }
+
+    input[type="file"],
+    textarea,
+    select {
+        font-size: 1rem;
+    }
+}

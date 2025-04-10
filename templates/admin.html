@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Beitrag erstellen{% endblock %}
+
+{% block content %}
+    <h2>📝 Neuen Reiseblog-Post erstellen</h2>
+    <form method="post">
+        <label>Titel: <input type="text" name="title" required></label><br><br>
+        <label>Bild-URL (optional): <input type="text" name="image_url"></label><br><br>
+        <label>Text:<br>
+        <textarea name="content" rows="10" cols="60" required></textarea></label><br><br>
+        <button type="submit">Speichern</button>
+    </form>
+{% endblock %}
